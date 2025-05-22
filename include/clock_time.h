@@ -17,7 +17,7 @@ public:
     Time operator+(const Time &);
     Time operator-(const Time &);
 
-    friend bool operator<(Time&, Time&);
+    friend bool operator<(const Time&, const Time&);
 
     int get_hours();
     int get_minutes();

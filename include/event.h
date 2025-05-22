@@ -32,6 +32,8 @@ public:
     friend std::istringstream &operator>>(std::istringstream&, OutgoingEvent&);
     friend std::ostream &operator<<(std::ostream&, OutgoingEvent&);
 
+    static bool is_valid_client_name(const std::string& s);
+
     int get_table_number();
     std::string get_client_name();
 

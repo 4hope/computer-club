@@ -10,6 +10,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <regex>
 
 using namespace std;
 
@@ -38,6 +39,11 @@ int Event::get_id() { return id_.value(); }
 // OUTGOING EVENT
 OutgoingEvent::OutgoingEvent() : Event(Time(), nullopt), table_number_(nullopt) { }
 
+bool OutgoingEvent::is_valid_client_name(const std::string& s) {
+    static const std::regex name_pattern(R"(^[a-z0-9_-]+$)");
+    return std::regex_match(s, name_pattern);
+}
+
 istringstream &operator>>(istringstream& f, OutgoingEvent& event) {
     f >> static_cast<Event &>(event);
     if (f.fail()) return f;
@@ -45,12 +51,22 @@ istringstream &operator>>(istringstream& f, OutgoingEvent& event) {
     f >> event.client_name_;
     if (f.fail()) return f;
 
+    if (!OutgoingEvent::is_valid_client_name(event.client_name_)) {
+        f.setstate(ios::failbit);
+        return f;
+    }
+
     if (event.id_ == 2) {
         int table_number;
         f >> table_number;
         if (f.fail()) return f;
 
         event.table_number_ = table_number;
+    }
+
+    if (event.id_ >= 5 || event.id_ <= 0) {
+        f.setstate(ios::failbit);
+        return f;
     }
 
     return f;

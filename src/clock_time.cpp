@@ -6,6 +6,7 @@
 #include <optional>
 #include <fstream>
 #include <sstream>
+#include <regex>
 
 using namespace std;
 
@@ -14,6 +15,12 @@ Time::Time(int hours, int minutes) : hours_(hours), minutes_(minutes) {};
 istringstream &operator>>(istringstream& f, Time& time) {
     string time_str;
     f >> time_str;
+
+    regex time_pattern(R"(^\d{2}:\d{2}$)");
+    if (!regex_match(time_str, time_pattern)) {
+        f.setstate(std::ios::failbit);
+        return f;
+    }
 
     tm tm = {};
     istringstream ss(time_str);
@@ -48,7 +55,7 @@ Time Time::operator-(const Time & other) {
     return Time(total_minutes / 60, total_minutes % 60);
 }
 
-bool operator<(Time& a, Time& b) {
+bool operator<(const Time& a, const Time& b) {
     return (a.hours_ < b.hours_) || (a.hours_ == b.hours_ && a.minutes_ < b.minutes_);
 }
 

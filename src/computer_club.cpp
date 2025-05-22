@@ -231,11 +231,27 @@ bool ComputerClub::simulate(ifstream& f) {
         istringstream ss(line);
         OutgoingEvent ev;
         ss >> ev;
-        if (ss.fail() || (ss >> fault)) {
+
+        bool flag = false;
+        if (ss.fail() || (ss >> fault))
+            flag = true;
+        else if (!outgoing.empty() && ev.get_time() < outgoing.back().get_time())
+            flag = true;
+        else if (ev.get_id() == 2) {
+            if (ev.get_table_number() > table_count_ || ev.get_table_number() < 1)
+                flag = true;
+            else if (count(line.begin(), line.end(), ' ') != 3)
+                flag = true;
+        }
+        else if (count(line.begin(), line.end(), ' ') != 2)
+            flag = true;
+
+        if (flag) {
             cout << line << endl;
             f.setstate(ios::failbit);
             return false;
         }
+
         outgoing.push_back(ev);
     }
 
